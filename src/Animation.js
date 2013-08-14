@@ -192,7 +192,12 @@
         }
 
         for(key in layerHash) {
-            layerHash[key].draw();
+            var clip = layerHash[key].getClip();
+            if (clip.x !== undefined) {
+               layerHash[key].draw([clip.x, clip.y, clip.width, clip.height]);
+            } else {
+               layerHash[key].draw();
+            }
         }
     };
     Kinetic.Animation._animationLoop = function() {

@@ -50,7 +50,7 @@
 
             return null;
         },
-        drawScene: function(canvas) {
+        drawScene: function(canvas, clip) {
             canvas = canvas || this.getCanvas();
 
             this._fire(BEFORE_DRAW, {
@@ -58,7 +58,7 @@
             });
 
             if(this.getClearBeforeDraw()) {
-                canvas.clear();
+                canvas.clear(clip);
             }
             
             Kinetic.Container.prototype.drawScene.call(this, canvas);
