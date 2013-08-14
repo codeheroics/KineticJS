@@ -241,7 +241,7 @@
             context.beginPath();
             context.rect(clipX, clipY, clipWidth, clipHeight);
             context.clip();
-            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
         }
     };
 
