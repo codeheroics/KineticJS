@@ -1218,10 +1218,11 @@
          * draw both scene and hit graphs.  If the node being drawn is the stage, all of the layers will be cleared and redra
          * @method
          * @memberof Kinetic.Node.prototype
+         * @param {Array} Clip array
          *  the scene renderer
          */
-        draw: function() {
-            this.drawScene();
+        draw: function(clip) {
+            this.drawScene(null, clip);
             this.drawHit();
             return this;
         },
