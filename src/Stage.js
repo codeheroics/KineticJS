@@ -458,68 +458,80 @@
         },
         _touchstart: function(evt) {
             this._setPointerPosition(evt);
-            var go = Kinetic.Global,
-                obj = this.getIntersection(this.getPointerPosition()),
+            var go = Kinetic.Global;
+
+            for (var i in evt.changedTouches) {
+                if (!evt.changedTouches.hasOwnProperty(i) || i === 'length') continue;
+                var changedTouch = evt.changedTouches[i];
+                var obj = this.getIntersection(this._getTouchPositionFromTouchObject(changedTouch)),
                 shape = obj && obj.shape ? obj.shape : this;
 
-            go.listenClickTap = true;
-            this.tapStartShape = shape;
-            shape._fireAndBubble(TOUCHSTART, evt);
+                go.listenClickTap = true;
+                this.tapStartShape = shape;
+                shape._fireAndBubble(TOUCHSTART, evt);
 
-            // only call preventDefault if the shape is listening for events
-            if (shape.isListening() && evt.preventDefault) {
-                evt.preventDefault();
+                // only call preventDefault if the shape is listening for events
+                if (shape.isListening() && evt.preventDefault) {
+                    evt.preventDefault();
+                }
             }
         },
         _touchend: function(evt) {
             this._setPointerPosition(evt);
-            var that = this,
-                go = Kinetic.Global,
-                obj = this.getIntersection(this.getPointerPosition()),
+            var go = Kinetic.Global;
+            for (var i in evt.changedTouches) {
+                if (!evt.changedTouches.hasOwnProperty(i) || i === 'length') continue;
+                var changedTouch = evt.changedTouches[i];
+                var obj = this.getIntersection(this._getTouchPositionFromTouchObject(changedTouch)),
                 shape = obj && obj.shape ? obj.shape : this;
 
-            shape._fireAndBubble(TOUCHEND, evt);
+                shape._fireAndBubble(TOUCHEND, evt);
 
-            // detect if tap or double tap occurred
-            if(go.listenClickTap && shape._id === this.tapStartShape._id) {
-                shape._fireAndBubble(TAP, evt);
+                // detect if tap or double tap occurred
+                if(go.listenClickTap && shape._id === this.tapStartShape._id) {
+                    shape._fireAndBubble(TAP, evt);
 
-                if(go.inDblClickWindow) {
-                    shape._fireAndBubble(DBL_TAP, evt);
-                    go.inDblClickWindow = false;
+                    if(go.inDblClickWindow) {
+                        shape._fireAndBubble(DBL_TAP, evt);
+                        go.inDblClickWindow = false;
+                    }
+                    else {
+                        go.inDblClickWindow = true;
+                    }
+
+                    setTimeout(function() {
+                        go.inDblClickWindow = false;
+                    }, go.dblClickWindow);
                 }
-                else {
-                    go.inDblClickWindow = true;
+
+                go.listenClickTap = false;
+
+                // only call preventDefault if the shape is listening for events
+                if (shape.isListening() && evt.preventDefault) {
+                    evt.preventDefault();
                 }
-
-                setTimeout(function() {
-                    go.inDblClickWindow = false;
-                }, go.dblClickWindow);
-            }
-
-            go.listenClickTap = false;
-
-            // only call preventDefault if the shape is listening for events
-            if (shape.isListening() && evt.preventDefault) {
-                evt.preventDefault();
             }
         },
         _touchmove: function(evt) {
             this._setPointerPosition(evt);
-            var dd = Kinetic.DD,
-                obj = this.getIntersection(this.getPointerPosition()),
+            var dd = Kinetic.DD;
+            for (var i in evt.changedTouches) {
+                if (!evt.changedTouches.hasOwnProperty(i) || i === 'length') continue;
+                var changedTouch = evt.changedTouches[i];
+                var obj = this.getIntersection(this._getTouchPositionFromTouchObject(changedTouch)),
                 shape = obj && obj.shape ? obj.shape : this;
 
-            shape._fireAndBubble(TOUCHMOVE, evt);
+                shape._fireAndBubble(TOUCHMOVE, evt);
 
-            // start drag and drop
-            if(dd) {
-                dd._drag(evt);
-            }
+                // start drag and drop
+                if(dd) {
+                    dd._drag(evt);
+                }
 
-            // only call preventDefault if the shape is listening for events
-            if (shape.isListening() && evt.preventDefault) {
-                evt.preventDefault();
+                // only call preventDefault if the shape is listening for events
+                if (shape.isListening() && evt.preventDefault) {
+                    evt.preventDefault();
+                }
             }
         },
         _setMousePosition: function(evt) {
@@ -547,6 +559,20 @@
                     y: touchY
                 };
             }
+        },
+        /**
+         * @param {Touch} a Touch object (part of a TouchList)
+         * @return {Object} a touchPos object (with X & Y)
+         */
+        _getTouchPositionFromTouchObject: function(touch) {
+            // get the information for finger #1
+            touchX = touch.clientX - this._getContentPosition().left;
+            touchY = touch.clientY - this._getContentPosition().top;
+
+            return {
+                x: touchX,
+                y: touchY
+            };
         },
         _getContentPosition: function() {
             var rect = this.content.getBoundingClientRect();
